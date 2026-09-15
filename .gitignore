@@ -1,0 +1,58 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.agents/
+.codex/
+
+# Logs
+Log/
+logs/
+*.log
+
+# Datasets, captures, and generated experiment output
+datasets/
+prediction_data/
+Dataset_backup*/
+
+experiments/
+
+# Raw and derived SKU/catalog data (private reference catalog, not for public release)
+data/*
+metadata/sku_catalog.json
+
+# AI2 training reports contain real per-job identifiers; schema/label files are fine
+models/packing/*/ai2_v1/report.json
+
+# Ad-hoc validation scratch data
+testing_development/**/inputs/
+testing_development/**/outputs/
+testing_development/**/results/
+
+# Point clouds, arrays, and depth captures
+*.npy
+*.npz
+*.ply
+*.pcd
+*.bag
+
+# Trained model artifacts and checkpoints
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.ts
+*.joblib
+*.pkl
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

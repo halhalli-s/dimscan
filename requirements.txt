@@ -1,0 +1,28 @@
+# Core numerical / imaging
+numpy==2.5.0
+Pillow==12.2.0
+opencv-python==4.13.0.92
+
+# Web server
+Flask==3.1.3
+
+# 3D geometry processing (point clouds, voxel ops)
+open3d==0.19.0
+
+# AI2 training / inference stack
+pandas==3.0.3
+scikit-learn==1.9.0
+joblib==1.5.3
+
+# AI1 (YOLOE) segmentation, support/debug only
+torch==2.12.1
+ultralytics==8.4.83
+
+# Test suite
+pytest
+
+# NOTE: pyorbbecsdk (Orbbec camera SDK) is intentionally not listed here.
+# It is not published on PyPI and must be installed from Orbbec's own SDK
+# distribution for your platform. See README.md > "Hardware / Orbbec SDK
+# setup" for details. The app runs without it; only live camera capture
+# requires it.

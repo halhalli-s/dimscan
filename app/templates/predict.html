@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DimScan Predict</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>DimScan Prediction</h1>
+          <p>AI2 v1 baseline from trusted combined features</p>
+        </div>
+        <nav class="nav-actions">
+          <a class="nav-link" href="/collect">Collect</a>
+          <a class="nav-link active" href="/predict">Predict</a>
+        </nav>
+      </header>
+
+      <div class="operator-grid">
+        <div class="left-column">
+          <section class="card camera-card">
+            <div class="card-heading">
+              <h2>Live Camera</h2>
+              <span id="cameraPill" class="pill">Camera Preview</span>
+            </div>
+            <div class="preview-frame">
+              <img id="cameraPreview" src="/video_feed" alt="Live camera preview">
+            </div>
+            <div class="camera-footer">
+              <span id="cameraStatus" class="status-text">Live feed loading.</span>
+              <button type="button" class="secondary" id="reload-feed">Reload Feed</button>
+            </div>
+          </section>
+
+          <section class="card output-card">
+            <div class="card-heading">
+              <h2>Latest Result</h2>
+              <span id="outputStatus" class="muted">Waiting for action</span>
+            </div>
+            <div id="predictionSummary" class="result-summary">
+              <p class="status-text">No prediction yet.</p>
+            </div>
+            <details class="raw-json">
+              <summary>Show raw JSON</summary>
+              <pre id="output">{}</pre>
+            </details>
+          </section>
+        </div>
+
+        <div class="right-column">
+          <section class="card">
+            <h2>Capture & Predict</h2>
+            <p class="helper">AI2 predicts from combined_features.json created by capture, not from raw image directly.</p>
+            <div class="form-grid">
+              <div>
+                <label for="job-type">Job Type</label>
+                <select id="job-type">
+                  <option value="single">Single</option>
+                  <option value="group">Group</option>
+                </select>
+              </div>
+              <div id="shape-field">
+                <label for="shape-mode">Single Shape</label>
+                <select id="shape-mode">
+                  <option value="square_cylindrical">Square / Cylindrical</option>
+                  <option value="rectangular">Rectangular</option>
+                </select>
+              </div>
+              <div id="arrangement-field" hidden>
+                <label for="arrangement-type">Arrangement (rows x columns)</label>
+                <input id="arrangement-type" type="text" value="1x1" placeholder="2x3">
+              </div>
+            </div>
+            <div class="sku-grid">
+              <div>
+                <label for="sku-input">SKU</label>
+                <input id="sku-input" type="text" placeholder="FERN_8IN">
+              </div>
+              <div>
+                <label for="quantity-input">Quantity</label>
+                <input id="quantity-input" type="number" min="1" step="1" value="1" disabled>
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" class="secondary" id="lookup-sku">Lookup SKU</button>
+              <button type="button" class="secondary" id="add-item" hidden>Add Item</button>
+            </div>
+            <div id="item-table-wrap" hidden>
+              <table class="item-table">
+                <thead><tr><th>SKU</th><th>Quantity</th><th></th></tr></thead>
+                <tbody id="item-list"></tbody>
+              </table>
+              <p class="status-text" id="quantity-summary">Total quantity: 0</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="primary" id="capture-view-01">Capture View 01</button>
+              <button type="button" class="primary" id="capture-view-02" hidden>Capture View 02 &amp; Predict</button>
+              <button type="button" class="primary" id="start-new-prediction" hidden>Start New Prediction</button>
+            </div>
+            <div id="skuSummary" class="result-summary">
+              <p class="status-text">Lookup a SKU or capture with the entered SKU.</p>
+            </div>
+            <p class="status-text" id="capturePredictStatus">Prediction captures are stored under prediction_data by job type.</p>
+          </section>
+
+          <details class="card">
+            <summary>Advanced / Debug: Predict Existing Dataset Job</summary>
+            <p class="helper">Manual mode reads datasets/single/jobs, for existing jobs such as dataset_2.</p>
+            <div class="form-grid">
+              <div>
+                <label for="predict-job-type">Job Type</label>
+                <select id="predict-job-type">
+                  <option value="single">single</option>
+                  <option value="group">group</option>
+                </select>
+              </div>
+              <div>
+                <label for="predict-job-id">Job ID</label>
+                <input id="predict-job-id" type="text" placeholder="dataset_2">
+              </div>
+            </div>
+            <button type="button" class="secondary" id="predict">Predict Dataset Job</button>
+          </details>
+        </div>
+      </div>
+    </main>
+
+    <script src="/static/predict.js"></script>
+  </body>
+</html>

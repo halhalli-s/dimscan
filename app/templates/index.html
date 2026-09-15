@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DimScan Collect</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>DimScan Operator Console</h1>
+          <p>Guided RGB-D collection for plant box-dimensioning samples</p>
+        </div>
+        <nav class="nav-actions">
+          <a class="nav-link active" href="/collect">Collect</a>
+          <a class="nav-link" href="/predict">Predict</a>
+        </nav>
+      </header>
+
+      <div class="operator-grid">
+        <div class="left-column">
+          <section class="card camera-card">
+            <div class="card-heading">
+              <h2>Live Camera</h2>
+              <span id="cameraPill" class="pill">Camera Preview</span>
+            </div>
+            <div class="preview-frame">
+              <img id="cameraPreview" src="/video_feed" alt="Live camera preview">
+            </div>
+            <div class="camera-footer">
+              <span id="cameraStatus" class="status-text">Live feed loading.</span>
+              <button type="button" class="secondary" id="reload-feed">Reload Feed</button>
+            </div>
+            <div class="job-strip">
+              <span class="mini-label">Current Job</span>
+              <strong id="currentJobLabel">Not started</strong>
+            </div>
+            <div class="job-strip">
+              <span class="mini-label">Status</span>
+              <strong id="workflowStatus">Set up a job to begin.</strong>
+            </div>
+          </section>
+
+          <section class="card output-card">
+            <div class="card-heading">
+              <h2>Latest Result</h2>
+              <span id="outputStatus" class="muted">Waiting for action</span>
+            </div>
+            <div id="outputSummary" class="result-summary">
+              <p class="status-text">No result yet.</p>
+            </div>
+            <details class="raw-json">
+              <summary>Show raw JSON</summary>
+              <pre id="output">{}</pre>
+            </details>
+          </section>
+        </div>
+
+        <div class="right-column workflow-column">
+          <section class="card step-card active" id="setupSection">
+            <div class="step-heading">
+              <span class="step-number">1</span>
+              <div>
+                <h2>Job Setup</h2>
+                <p>Start with operator and job details.</p>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div>
+                <label for="operator-id">Operator ID</label>
+                <input id="operator-id" type="text" placeholder="sachi">
+              </div>
+              <div>
+                <label for="job-type">Job Type</label>
+                <select id="job-type">
+                  <option value="single">single</option>
+                  <option value="group">group</option>
+                </select>
+              </div>
+              <div>
+                <label for="job-id">Job ID</label>
+                <input id="job-id" type="text" placeholder="optional; auto-generated if blank">
+              </div>
+              <div>
+                <label for="arrangement-type">Arrangement</label>
+                <input id="arrangement-type" type="text" value="1x1">
+              </div>
+            </div>
+            <button type="button" class="primary full" id="prepare-job">Start Job</button>
+            <p class="status-text" id="setupStatus">Blank Job ID will be resolved by the backend.</p>
+          </section>
+
+          <section class="card step-card locked" id="itemSection">
+            <div class="step-heading">
+              <span class="step-number">2</span>
+              <div>
+                <h2>Item / SKU</h2>
+                <p>Add the item before capture.</p>
+              </div>
+            </div>
+            <div class="sku-grid">
+              <div>
+                <label for="sku-input">SKU</label>
+                <input id="sku-input" type="text" placeholder="FERN_8IN">
+              </div>
+              <div>
+                <label for="quantity-input">Quantity</label>
+                <input id="quantity-input" type="number" min="1" step="1" value="1">
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" class="secondary" id="lookup-sku">Lookup SKU</button>
+              <button type="button" class="primary" id="add-item">Add Item</button>
+            </div>
+            <label class="check" for="allow-unresolved-sku">
+              <input id="allow-unresolved-sku" type="checkbox">
+              Intentionally add this item without a catalogue SKU match
+            </label>
+            <div class="item-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Qty</th>
+                    <th>Known</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="item-list"></tbody>
+              </table>
+            </div>
+            <p class="status-text" id="itemStatus">Locked until Job Setup is complete.</p>
+          </section>
+
+          <section class="card step-card locked capture-card" id="captureSection">
+            <div class="step-heading">
+              <span class="step-number">3</span>
+              <div>
+                <h2>Capture</h2>
+                <p>Capture RGB/depth/cloud and process the sample.</p>
+              </div>
+            </div>
+            <button type="button" class="primary full" id="collect">Capture</button>
+            <button type="button" class="danger full" id="recapture" hidden>Recapture Selected View</button>
+            <label class="check" for="debug-mode">
+              <input id="debug-mode" type="checkbox"> Debug Mode
+            </label>
+            <label class="check" for="save-object-cloud">
+              <input id="save-object-cloud" type="checkbox"> Save Object Cloud
+            </label>
+            <div class="actions" id="two-view-actions" hidden>
+              <button type="button" class="secondary" id="capture-view-01">Capture View 01 / Front Side</button>
+              <button type="button" class="secondary" id="capture-view-02">Capture View 02 / Width Side</button>
+            </div>
+            <p id="viewCaptureStatus" class="status-text">Required views: view_01.</p>
+            <p id="captureStatus" class="status-text">Locked until an item is added.</p>
+            <div id="qualitySummary" class="quality-card quality-waiting" hidden>
+              <div class="quality-label" id="qualityLabel">Waiting for capture</div>
+              <ul class="quality-reasons" id="qualityReasons"></ul>
+              <div class="quality-checks" id="qualityChecks"></div>
+            </div>
+          </section>
+
+          <section class="card step-card locked" id="gtSection">
+            <div class="step-heading">
+              <span class="step-number">4</span>
+              <div>
+                <h2>Ground Truth</h2>
+                <p id="gtJobLabel">Ground Truth for: pending capture</p>
+              </div>
+            </div>
+            <div class="ground-grid">
+              <div>
+                <label for="gt-length">Length</label>
+                <input id="gt-length" type="number" min="0" step="0.01">
+              </div>
+              <div>
+                <label for="gt-width">Width</label>
+                <input id="gt-width" type="number" min="0" step="0.01">
+              </div>
+              <div>
+                <label for="gt-height">Height</label>
+                <input id="gt-height" type="number" min="0" step="0.01">
+              </div>
+              <div>
+                <label for="gt-fit">Fit</label>
+                <input id="gt-fit" type="text" placeholder="good">
+              </div>
+              <label class="check" for="gt-damage">
+                <input id="gt-damage" type="checkbox"> Damage
+              </label>
+              <div class="notes-field">
+                <label for="gt-notes">Notes</label>
+                <textarea id="gt-notes" rows="3"></textarea>
+              </div>
+            </div>
+            <button type="button" class="primary full" id="submit-ground-truth">Submit Ground Truth</button>
+            <p class="status-text" id="gtStatus">Locked until capture is usable.</p>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
